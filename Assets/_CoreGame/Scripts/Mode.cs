@@ -5,6 +5,4 @@ public enum Mode : byte
     FixedCenter = 2,
     FixedThreeRows = 3,
     FixedThreeColumns = 4,
-    FixedCross = 5,
-    FixedCornerOnly = 6,
 }

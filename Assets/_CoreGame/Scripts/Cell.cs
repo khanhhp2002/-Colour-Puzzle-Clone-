@@ -1,14 +1,14 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using DG.Tweening;
+using System;
 
 public class Cell : MonoBehaviour, IDragHandler, IBeginDragHandler, IDropHandler
 {
     [SerializeField] private Image image;
     [SerializeField] private Image xImage;
-
+    private Action<Cell> returnAction;
     private int x, y;
     private bool isFixed;
     private static Cell dragCell;
@@ -38,7 +38,7 @@ public class Cell : MonoBehaviour, IDragHandler, IBeginDragHandler, IDropHandler
     {
         if (IsFixed) return;
         dragCell = this;
-        Image.transform.SetParent(GridManager.Instance.temp);
+        Image.transform.SetParent(GameplayManager.Instance.imageHolder);
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -55,40 +55,59 @@ public class Cell : MonoBehaviour, IDragHandler, IBeginDragHandler, IDropHandler
         {
             dropCell = dragCell;
         }
+
         SwapImage();
+
         if (dropCell == dragCell) return;
+        GameplayManager.Instance.Moves++;
         CheckSoluion(dragCell);
         CheckSoluion(dropCell);
-        Debug.Log(GridManager.Instance.count);
-        if (GridManager.Instance.count == 0)
+
+        if (GameplayManager.Instance.Count == 0)
         {
             Debug.Log("Victory");
         }
-        dragCell = dropCell = null;
     }
+
     private void SwapImage()
     {
         Image temp = dragCell.Image;
         dragCell.Image = dropCell.Image;
         dropCell.Image = temp;
-        dragCell.Image.transform.SetParent(dragCell.transform);
-        dragCell.Image.transform.localPosition = Vector2.zero;
-        dropCell.Image.transform.SetParent(dropCell.transform);
-        dropCell.Image.transform.localPosition = Vector2.zero;
+        dragCell.Image.transform.SetParent(GameplayManager.Instance.imageHolder);
+        dragCell.Image.transform.DOMove(dragCell.transform.position, 0.2f).onComplete += () =>
+        {
+            dragCell.Image.transform.SetParent(dragCell.transform);
+            dragCell = null;
+        };
+        dropCell.Image.transform.DOMove(dropCell.transform.position, 0.2f).onComplete += () =>
+        {
+            dropCell.Image.transform.SetParent(dropCell.transform);
+            dropCell = null;
+        };
     }
+
     private void CheckSoluion(Cell temp)
     {
-        if (temp.Image.color == GridManager.Instance.Solution[temp])
+        if (temp.Image.color == GameplayManager.Instance.Solution[temp])
         {
             temp.IsCorrect = true;
-            GridManager.Instance.count--;
+            GameplayManager.Instance.Count--;
         }
         else if (temp.IsCorrect)
         {
-            GridManager.Instance.count++;
+            GameplayManager.Instance.Count++;
             temp.IsCorrect = false;
         }
-
     }
 
+    public void Initialize(Action<Cell> returnAction)
+    {
+        this.returnAction = returnAction;
+    }
+
+    public void ReturnToPool()
+    {
+        this.returnAction?.Invoke(this);
+    }
 }
