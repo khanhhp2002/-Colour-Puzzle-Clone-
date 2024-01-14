@@ -62,7 +62,7 @@ public class GridManager : MonoBehaviour
                 FixedCrossMode(offset);
                 break;
             case Mode.FixedCornerOnly:
-                //FixedCornerOnlyMode();
+                FixedCornerOnlyMode(offset);
                 break;
             default:
                 break;
