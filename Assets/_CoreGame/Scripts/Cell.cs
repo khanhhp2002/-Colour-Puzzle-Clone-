@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using DG.Tweening;
 using System;
 
-public class Cell : MonoBehaviour, IDragHandler, IBeginDragHandler, IDropHandler
+public class Cell : MonoBehaviour, IDragHandler, IBeginDragHandler, IDropHandler, IEndDragHandler
 {
     [SerializeField] private Image image;
     [SerializeField] private Image xImage;
@@ -109,5 +109,18 @@ public class Cell : MonoBehaviour, IDragHandler, IBeginDragHandler, IDropHandler
     public void ReturnToPool()
     {
         this.returnAction?.Invoke(this);
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        if (dragCell == null) return;
+        if (dropCell == null)
+        {
+            image.transform.DOMove(this.transform.position, 0.2f).onComplete += () =>
+            {
+                image.transform.SetParent(this.transform);
+                dragCell = null;
+            };
+        }
     }
 }
