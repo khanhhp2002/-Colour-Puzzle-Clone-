@@ -464,10 +464,12 @@ MonoBehaviour:
   - {r: 1, g: 0.9294118, b: 0.41960788, a: 1}
   - {r: 0.27058825, g: 0.3137255, b: 1, a: 1}
   - {r: 1, g: 0.627451, b: 0.42352945, a: 1}
-  xSize: 30
-  ySize: 30
+  xSize: 5
+  ySize: 5
   gridLayoutGroup: {fileID: 559180490}
-  gridPrefab: {fileID: 7767718053580247816, guid: e8a6846536f95a046ae69645b598dc99, type: 3}
+  cellPrefab: {fileID: 620868134049931220, guid: 3e8842a95003e494988da9bdbef54c2f, type: 3}
+  generatorMode: 4
+  offset: 5
 --- !u!114 &559180492
 MonoBehaviour:
   m_ObjectHideFlags: 0
