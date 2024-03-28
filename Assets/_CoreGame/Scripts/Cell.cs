@@ -36,26 +36,40 @@ public class Cell : MonoBehaviour, IDragHandler, IBeginDragHandler, IDropHandler
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (IsFixed) return;
+        if (IsFixed || dragCell != null || dropCell != null) return;
+        Debug.Log("OnBeginDrag");
         dragCell = this;
-        Image.transform.SetParent(GameplayManager.Instance.imageHolder);
+        Image.transform.SetParent(GameplayManager.Instance.ImageHolder);
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (IsFixed) return;
-        Image.transform.position = eventData.position;
+        if (IsFixed || dragCell != this) return;
+
+        dragCell.Image.transform.position = eventData.position;
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        if (dragCell == null) return;
+        if (dropCell == null)
+        {
+            Debug.Log("OnEndDrag");
+            MoveDragCellBack();
+        }
     }
 
     public void OnDrop(PointerEventData eventData)
     {
-        if (dragCell == null) return;
-        dropCell = this;
-        if (dropCell.IsFixed)
-        {
-            dropCell = dragCell;
-        }
+        if (dragCell == null || dropCell != null) return;
 
+        dropCell = this;
+        if (dragCell == this || dropCell.IsFixed)
+        {
+            MoveDragCellBack();
+            return;
+        }
+        Debug.Log("OnDrop");
         SwapImage();
 
         if (dropCell == dragCell) return;
@@ -74,12 +88,15 @@ public class Cell : MonoBehaviour, IDragHandler, IBeginDragHandler, IDropHandler
         Image temp = dragCell.Image;
         dragCell.Image = dropCell.Image;
         dropCell.Image = temp;
-        dragCell.Image.transform.SetParent(GameplayManager.Instance.imageHolder);
+
+        dragCell.Image.transform.SetParent(GameplayManager.Instance.ImageHolder);
+
         dragCell.Image.transform.DOMove(dragCell.transform.position, 0.2f).onComplete += () =>
         {
             dragCell.Image.transform.SetParent(dragCell.transform);
             dragCell = null;
         };
+
         dropCell.Image.transform.DOMove(dropCell.transform.position, 0.2f).onComplete += () =>
         {
             dropCell.Image.transform.SetParent(dropCell.transform);
@@ -111,16 +128,13 @@ public class Cell : MonoBehaviour, IDragHandler, IBeginDragHandler, IDropHandler
         this.returnAction?.Invoke(this);
     }
 
-    public void OnEndDrag(PointerEventData eventData)
+    private void MoveDragCellBack()
     {
-        if (dragCell == null) return;
-        if (dropCell == null)
+        dragCell.Image.transform.DOMove(dragCell.transform.position, 0.2f).onComplete += () =>
         {
-            image.transform.DOMove(this.transform.position, 0.2f).onComplete += () =>
-            {
-                image.transform.SetParent(this.transform);
-                dragCell = null;
-            };
-        }
+            dragCell.Image.transform.SetParent(dragCell.transform);
+            dragCell = null;
+            dropCell = null;
+        };
     }
 }

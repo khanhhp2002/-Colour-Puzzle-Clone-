@@ -6,7 +6,7 @@ public class GameplayManager : Singleton<GameplayManager>
 {
     private Dictionary<Cell, Color> solution = new Dictionary<Cell, Color>();
     public Dictionary<Cell, Color> Solution { get => solution; set => solution = value; }
-    public Transform imageHolder;
+    public Transform ImageHolder;
     private int count;
     private int moves;
 
